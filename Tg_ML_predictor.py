@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Sep 14 17:41:37 2020
+Created on Fri March 14 17:41:37 2024
 
-@author: Lucas
+@author: Gerardo Casanola
 """
 
 
@@ -32,7 +32,7 @@ import base64
 #---------------------------------#
 # Page layout
 ## Page expands to full width
-st.set_page_config(page_title='LiADME- OCT1 substrate predictor', page_icon=":computer:", layout='wide')
+st.set_page_config(page_title='Tg ML predictor', page_icon=":computer:", layout='wide')
 
 ######
 # Function to put a picture as header   
@@ -44,42 +44,36 @@ def img_to_bytes(img_path):
 image = Image.open('cropped-header.png')
 st.image(image)
 
-st.write("[![Website](https://img.shields.io/badge/website-LIDeB-blue)](https://lideb.biol.unlp.edu.ar)[![Twitter Follow](https://img.shields.io/twitter/follow/LIDeB_UNLP?style=social)](https://twitter.com/intent/follow?screen_name=LIDeB_UNLP)")
+st.write("[![Website](https://img.shields.io/badge/website-RasulevGroup-blue)](http://www.rasulev.org)")
 st.subheader("📌" "About Us")
-st.markdown("We are a drug discovery team with an interest in the development of publicly available open-source customizable cheminformatics tools to be used in computer-assisted drug discovery. We belong to the Laboratory of Bioactive Research and Development (LIDeB) of the National University of La Plata (UNLP), Argentina. Our research group is focused on computer-guided drug repurposing and rational discovery of new drug candidates to treat epilepsy and neglected tropical diseases.")
+st.markdown("The group of Prof. Rasulev is focused on development of artificial intelligence (AI)-based predictive models to design novel polymeric materials, nanomaterials and to predict their various properties, including toxicity, solubility, fouling release properties, elasticity, degradation rate, biodegradation, etc. The group applies computational chemistry, machine learning and cheminformatics methods for modeling, data analysis and development of predictive structure-property relationship models to find structural factors responsible for activity of investigated materials.")
 
 
 # Introduction
 #---------------------------------#
 
-st.title(':computer: _OCT1 Substrate predictor_ ')
+st.title(':computer: _Tg ML predictor_ ')
 
 st.write("""
 
-**It is a free web-application for Organic cation transporter 1 (OCT1) Substrate Prediction**
+**It is a free web-application for Glass Transition Temperature Prediction**
 
-Organic Cation Transporters (OCTs) are members of the Solute Carrier (SLC) group of transporters and belong to the Major Facilitator superfamily.
-According to the Human Genome Organization, they are assigned to the SLC22A family, which includes electrogenic and electroneutral organic cation transporters and Organic Anion Transporters (OATs),
-a large group of carriers involved in the uptake of organic anions. 
-OCTs are multispecific, bidirectional carriers that transport organic cations and are critically involved in the absorption, disposition, and excretion of many exogenous compounds.
-In humans, organic cation transporters from the SLC22A family include OCT1 (SLC22A1), OCT2 (SLC22A2), OCT3 (SLC22A3), OCT1 is mainly found in the liver (basolateral membrane of hepatocytes).
-Low expression levels of OCT1 have also been detected in other tissues, including the intestine, kidneys, lungs, and brain..
+The glass transition temperature (Tg) is one of the most important properties of polymeric materials and indicates an approximate temperature below which a macromolecular system changes from a relatively soft, 
+flexible and rubbery state to a hard, brittle and glass-like one1. The Tg value also determines the utilization limits of many rubbers and thermoplastic materials. 
+Besides, the drastic changes in the mobility of the molecules in different glassy states (from the frozen to the thawed state) affect many other chemical and physical properties, 
+such as mechanical modulus, acoustical properties, specific heat, viscosity, mechanical energy absorption, density, dielectric coefficients, viscosity and the gases and liquids difussion rate in the polymer material. 
+The change of these mechanical properties also specifies the employment of the material and the manufacturing process.
 
-Why is it important to predict whether a molecule is an OCT1 substrate? 
-Numerous clinically relevant drugs (e.g. metformin, morphine, fenoterol, sumatriptan, tramadol and tropisetron) have been shown to be substrates of OCT1, 
-and OCT1 deficiency has been shown to affect the pharmacokinetics, efficacy, or toxicity of these drugs.
-(https://www.frontiersin.org/research-topics/11452/organic-cation-transporter-1-oct1-not-vital-for-life-but-of-substantial-biomedical-relevance)
+The Tg ML predictor is a Web App that use a SVM regression model to predict the glass transition temperature. 
 
-The OCT1 Substrate predictor is a Web App that ensembles 14 linear models to classify molecules as OCT1 substrates or OCT1 non-substrates. 
-
-The tool uses the following packages [RDKIT](https://www.rdkit.org/docs/index.html), [Mordred](https://github.com/mordred-descriptor/mordred), [MOLVS](https://molvs.readthedocs.io/), [Openbabel](https://github.com/openbabel/openbabel)
-
+The tool uses the following packages [RDKIT](https://www.rdkit.org/docs/index.html), [Mordred](https://github.com/mordred-descriptor/mordred), [MOLVS](https://molvs.readthedocs.io/), [Openbabel](https://github.com/openbabel/openbabel),
+[Scikit-learn](https://scikit-learn.org/stable/)
 **Workflow:**
 """)
 
 
-image = Image.open('workflow_OCTapp.png')
-st.image(image, caption='OCT1 substrate predictor workflow')
+image = Image.open('workflow_TGapp.png')
+st.image(image, caption='Tg ML predictor workflow')
 
 
 #---------------------------------#
