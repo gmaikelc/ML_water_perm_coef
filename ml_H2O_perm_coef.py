@@ -32,7 +32,7 @@ import base64
 #---------------------------------#
 # Page layout
 ## Page expands to full width
-st.set_page_config(page_title='Tg ML predictor', page_icon=":computer:", layout='wide')
+st.set_page_config(page_title='ml H2O permeability coefficient predictor', page_icon=":computer:", layout='wide')
 
 ######
 # Function to put a picture as header   
