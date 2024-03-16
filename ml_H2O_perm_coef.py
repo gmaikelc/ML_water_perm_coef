@@ -52,7 +52,7 @@ st.markdown("The group of Prof. Rasulev is focused on development of artificial 
 # Introduction
 #---------------------------------#
 
-st.title(':computer: _Tg ML predictor_ ')
+st.title(':computer: _ml_H2O water permeant coeff predictor_ ')
 
 st.write("""
 
@@ -78,38 +78,59 @@ st.image(image, caption='Tg ML predictor workflow')
 
 #---------------------------------#
 # Sidebar - Collects user input features into dataframe
-st.sidebar.header('Upload your SMILES')
+st.sidebar.header('Upload your CSV file')
 st.sidebar.markdown("""
-[Example TXT input file](https://raw.githubusercontent.com/LIDeB/OCT1-predictor/main/example_file.txt)        
+[Example CSV input file](https://raw.githubusercontent.com/gmaikelc/ML_water_perm_coef/main/example_file.csv) 
 """)
 
-uploaded_file_1 = st.sidebar.file_uploader("Upload a TXT file with one SMILES per line", type=["txt"])
+uploaded_file_1 = st.sidebar.file_uploader("Upload a CSV file with SMILES and fractions", type=["csv"])
 
 
 #%% Standarization by MOLVS ####
 ####---------------------------------------------------------------------------####
 
-def estandarizador(df):
+def standardizer(df):
     s = Standardizer()
-    moleculas = df[0].tolist()
-    moleculas_estandarizadas = []
+    molecules1 = df[3].tolist()
+    molecules2 = df[4].tolist()
+    standardized_molecules1 = []
+    standardized_molecules2 = []
     i = 1
+    j = 1
     t = st.empty()
+    w = st.empty()
+    
 
-    for molecula in moleculas:
+    for molecule1 in molecules1:
         try:
-            smiles = molecula.strip()
-            mol = Chem.MolFromSmiles(smiles)
-            standarized_mol = s.super_parent(mol) 
-            smiles_estandarizado = Chem.MolToSmiles(standarized_mol)
-            moleculas_estandarizadas.append(smiles_estandarizado)
-            # st.write(f'\rProcessing molecule {i}/{len(moleculas)}', end='', flush=True)
-            t.markdown("Processing molecules: " + str(i) +"/" + str(len(moleculas)))
+            smiles1 = molecule1.strip()
+            mol1 = Chem.MolFromSmiles(smiles1)
+            standarized_mol1 = s.super_parent(mol1) 
+            standardizer_smiles1 = Chem.MolToSmiles(standarized_mol1)
+            standardized_molecules1.append(standardizer_smiles1)
+            # st.write(f'\rProcessing molecule {i}/{len(molecules1)}', end='', flush=True)
+            t.markdown("Processing monomers: " + str(i) +"/" + str(len(molecules1)))
 
             i = i + 1
         except:
-            moleculas_estandarizadas.append(molecula)
-    df['standarized_SMILES'] = moleculas_estandarizadas
+            standardized_molecules1.append(molecule1)
+    df['standarized_SMILES_1'] = standardized_molecules1
+
+    for molecule2 in molecules2:
+        try:
+            smiles2 = molecule2.strip()
+            mol2 = Chem.MolFromSmiles(smiles2)
+            standarized_mol2 = s.super_parent(mol2) 
+            standardizer_smiles2 = Chem.MolToSmiles(standarized_mol2)
+            standardized_molecules2.append(standardizer_smiles2)
+            # st.write(f'\rProcessing molecule {i}/{len(molecules1)}', end='', flush=True)
+            w.markdown("Processing monomers: " + str(j) +"/" + str(len(molecules2)))
+
+            j = j + 1
+        except:
+            standardized_molecules2.append(molecule2)
+    df['standarized_SMILES_2'] = standardized_molecules2
+    
     return df
 
 
