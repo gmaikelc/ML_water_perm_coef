@@ -317,45 +317,52 @@ def calc_descriptors(data, smiles_col_pos):
     return descriptors_total, smiles_list
 
 
+#%% normalizing data
+### ----------------------- ###
+
+def normalize_data(train_data, test_data):
+    # Normalize the training data
+    df_train = pd.DataFrame(train_data)
+    saved_cols = df_train.columns
+    min_max_scaler = preprocessing.MinMaxScaler().fit(df_train)
+    np_train_scaled = min_max_scaler.transform(df_train)
+    df_train_normalized = pd.DataFrame(np_train_scaled, columns=saved_cols)
+
+    # Normalize the test data using the scaler fitted on training data
+    np_test_scaled = min_max_scaler.transform(test_data)
+    df_test_normalized = pd.DataFrame(np_test_scaled, columns=saved_cols)
+
+    return df_train_normalized, df_test_normalized
+
+
 #%% Determining Applicability Domain (AD)
 
-def applicability_domain(prediction_set_descriptors, descriptors_model):
+def applicability_domain(x_test_normalized, x_train_normalized):
     
-    descr_training = pd.read_csv("models/" + "OCT1_training_DA.csv")
-    desc = descr_training[descriptors_model]
-    t_transpuesto = desc.T
-    multi = t_transpuesto.dot(desc)
-    inversa = np.linalg.inv(multi)
+    X_train = x_train_normalized.values
+    X_test = x_test_normalized.values
+    # Calculate leverage and standard deviation for the training set
+    hat_matrix_train = X_train @ np.linalg.inv(X_train.T @ X_train) @ X_train.T
+    leverage_train = np.diagonal(hat_matrix_train)
+    leverage_train=leverage_train.ravel()
     
-    # Luego la base de testeo
-    desc_sv = prediction_set_descriptors.copy()
-    sv_transpuesto = desc_sv.T
+    # Calculate leverage and standard deviation for the test set
+    hat_matrix_test = X_test @ np.linalg.inv(X_train.T @ X_train) @ X_test.T
+    leverage_test = np.diagonal(hat_matrix_test)
+    leverage_test=leverage_test.ravel()
     
-    multi1 = desc_sv.dot(inversa)
-    sv_transpuesto.reset_index(drop=True, inplace=True) 
-    multi2 = multi1.dot(sv_transpuesto)
-    diagonal = np.diag(multi2)
+    # threshold for the applicability domain
     
-    # valor de corte para determinar si entra o no en el DA
+    h3 = 3*((x_train_normalized.shape[1]+1)/x_train_normalized.shape[0])  
     
-    h2 = 2*(desc.shape[1]/desc.shape[0])  ## El h es 2 x Num de descriptores dividido el Num compuestos training. Mas estricto
-    h3 = 3*(desc.shape[1]/desc.shape[0])  ##  Mas flexible
-    
-    diagonal_comparacion = list(diagonal)
-    resultado_palanca2 =[]
-    for valor in diagonal_comparacion:
-        if valor < h2:
-            resultado_palanca2.append(True)
-        else:
-            resultado_palanca2.append(False)
-    resultado_palanca3 =[]
-    for valor in diagonal_comparacion:
+    diagonal_compare = list(leverage_test)
+    h_results =[]
+    for valor in diagonal_compare:
         if valor < h3:
-            resultado_palanca3.append(True)
+            h_results.append(True)
         else:
-            resultado_palanca3.append(False)         
-    return resultado_palanca2, resultado_palanca3
-
+            h_results.append(False)         
+    return h_results
 
 #%% Removing molecules with na in any descriptor
 
