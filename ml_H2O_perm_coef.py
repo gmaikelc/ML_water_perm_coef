@@ -317,6 +317,18 @@ def calc_descriptors(data, smiles_col_pos):
     return descriptors_total, smiles_list
 
 
+def reading_reorder(data):
+     
+   
+    #Select the specified columns from the DataFrame
+    df_selected = data[loaded_desc]
+    id = data.iloc[:,0]
+    # Order the DataFrame by the specified list of columns
+    test_data = df_selected.reindex(columns=loaded_desc)
+    #descriptors_total = data[loaded_desc]
+    
+    return test_data, id
+
 #%% normalizing data
 ### ----------------------- ###
 
@@ -366,25 +378,22 @@ def applicability_domain(x_test_normalized, x_train_normalized):
 
 #%% Removing molecules with na in any descriptor
 
-def all_correct_model(descriptors_total,loaded_desc, smiles_list):
+def all_correct_model(test_data,loaded_desc, id_list):
     
-    total_desc = []
-    for descriptor_set in loaded_desc:
-        for desc in descriptor_set:
-            if not desc in total_desc:
-                total_desc.append(desc)
-            else:
-                pass
-            
-    X_final = descriptors_total[total_desc]
-    X_final["SMILES_OK"] = smiles_list
+    X_final = test_data[loaded_desc]
+    X_final["ID"] = id_list
+    # Assuming X_final is your DataFrame
+    id_list = X_final["ID"]  # Extract the ID column
+    X_final.drop(columns=["ID"], inplace=True)  # Drop the ID column from its original position
+    X_final.insert(0, "ID", id_list)  # Insert the ID column at the first position
+    
     rows_with_na = X_final[X_final.isna().any(axis=1)]         # Find rows with NaN values
-    for molecule in rows_with_na["SMILES_OK"]:
+    for molecule in rows_with_na["ID"]:
         st.write(f'\rMolecule {molecule} has been removed (NA value  in any of the necessary descriptors)')
     X_final1 = X_final.dropna(axis=0,how="any",inplace=False)
     
-    smiles_final = X_final1["SMILES_OK"]
-    return X_final1, smiles_final
+    id = X_final1["ID"]
+    return X_final1, id
 
  # Function to assign colors based on confidence values
 def get_color(confidence):
@@ -398,60 +407,79 @@ def get_color(confidence):
         str: The color in hexadecimal format (e.g., '#RRGGBB').
     """
     # Define your color logic here based on confidence
-    if confidence == "HIGH" or confidence == "Substrate":
+    if confidence == "HIGH" or confidence == "Inside AD":
         return 'lightgreen'
     elif confidence == "MEDIUM":
         return 'yellow'
     else:
+        confidence ==  "LOW"
         return 'red'
 
 
 #%% Predictions        
 
-def predictions(loaded_model, loaded_desc, X_final1):
+#%% Predictions        
+
+def predictions(loaded_model, loaded_desc, df_test_normalized):
     scores = []
-    palancas2 = []
-    palancas3 = []
+    h_values = []
+    std_resd = []
+    idx = X_final1['ID']
 
-    i = 0
-    
-    for estimator in loaded_model:
-        descriptors_model = loaded_desc[i]
+    descriptors_model = loaded_desc
         
-        X = X_final1[descriptors_model]
-        predictions = estimator.predict(X)
+    X = df_test_normalized[descriptors_model]
+    predictions = loaded_model.predict(X)
+    scores.append(predictions)
+        
+    # y_true and y_pred are the actual and predicted values, respectively
     
-        scores.append(predictions)
-        resultado_palanca2, resultado_palanca3  = applicability_domain(X, descriptors_model)
-        palancas2.append(resultado_palanca2)
-        palancas3.append(resultado_palanca3)
-        i = i + 1 
-    
-    dataframe_scores = pd.DataFrame(scores).T
-    dataframe_scores.index = smiles_final
-    
-    palancas_final2 = pd.DataFrame(palancas2).T
-    palancas_final2.index = smiles_final
-    palancas_final2['Confidence'] = (palancas_final2.sum(axis=1) / len(palancas_final2.columns)) * 100
-    
-    palancas_final3 = pd.DataFrame(palancas3).T
-    palancas_final3.index = smiles_final
-    palancas_final3['Confidence3'] = (palancas_final3.sum(axis=1) / len(palancas_final3.columns)) * 100
+    # Create y_true array with all elements set to 2.56 and the same length as y_pred
+    y_pred_test = predictions
+    y_test = np.full_like(y_pred_test, mean_value)
+    residuals_test = y_test -y_pred_test
 
-    score_ensemble = dataframe_scores.min(axis=1)
-    classification = score_ensemble >= 0.44
-    classification = classification.replace({True: 'Substrate', False: 'Non Substrate'})
+    std_dev_test = np.sqrt(mean_squared_error(y_test, y_pred_test))
+    std_residual_test = (y_test - y_pred_test) / std_dev_test
+    std_residual_test = std_residual_test.ravel()
+          
+    std_resd.append(std_residual_test)
+        
+    h_results  = applicability_domain(X, df_train_normalized)
+    h_values.append(h_results)
     
-    final_file = pd.concat([classification,palancas_final2['Confidence'], palancas_final3['Confidence3']], axis=1)
-    
-    final_file.rename(columns={0: "Prediction"},inplace=True)
-    
-    final_file.loc[final_file["Confidence"] >= 50, 'Confidence'] = 'HIGH'
-    final_file.loc[(final_file["Confidence3"] >= 50) & (final_file["Confidence"] != "HIGH"), 'Confidence'] = 'MEDIUM'
-    final_file.loc[final_file["Confidence3"] < 50, 'Confidence'] = 'LOW'
 
-    final_file.loc[final_file["Confidence3"] < 50, 'Prediction'] = 'No conclusive'
-    final_file.drop(columns=['Confidence3'],inplace=True)
+    dataframe_pred = pd.DataFrame(scores).T
+    dataframe_pred.index = idx
+    dataframe_pred.rename(columns={0: "Predictions"},inplace=True)
+    
+    dataframe_std = pd.DataFrame(std_resd).T
+    dataframe_std.index = idx
+    
+    
+        
+    h_final = pd.DataFrame(h_values).T
+    h_final.index = idx
+    h_final.rename(columns={0: "Confidence"},inplace=True)
+
+    std_ensemble = dataframe_std.iloc[:,0]
+    # Create a mask using boolean indexing
+    std_ad_calc = (std_ensemble >= 3) | (std_ensemble <= -3) 
+    std_ad_calc = std_ad_calc.replace({True: 'Outside AD', False: 'Inside AD'})
+   
+    
+    final_file = pd.concat([std_ad_calc,h_final,dataframe_pred], axis=1)
+    
+    final_file.rename(columns={0: "Std_residual"},inplace=True)
+    
+    h3 = 3*((df_train_normalized.shape[1]+1)/df_train_normalized.shape[0])  ##  Mas flexible
+
+    final_file.loc[(final_file["Confidence"] == True) & ((final_file["Std_residual"] == 'Inside AD' )), 'Confidence'] = 'HIGH'
+    final_file.loc[(final_file["Confidence"] == True) & ((final_file["Std_residual"] == 'Outside AD')), 'Confidence'] = 'LOW'
+    final_file.loc[(final_file["Confidence"] == False) & ((final_file["Std_residual"] == 'Outside AD')), 'Confidence'] = 'LOW'
+    final_file.loc[(final_file["Confidence"] == False) & ((final_file["Std_residual"] == 'Inside AD')), 'Confidence'] = 'MEDIUM'
+
+
             
     df_no_duplicates = final_file[~final_file.index.duplicated(keep='first')]
     styled_df = df_no_duplicates.style.apply(lambda row: [f"background-color: {get_color(row['Confidence'])}" for _ in row],subset=["Confidence"], axis=1)
@@ -459,30 +487,25 @@ def predictions(loaded_model, loaded_desc, X_final1):
     return final_file, styled_df
 
 
-
 #%% Create plot:
 
-
-
-
 def final_plot(final_file):
-    non_conclusives = len(final_file[final_file['Confidence'] == "LOW"]) 
-    substrates_hc = len(final_file[(final_file['Confidence'] == "HIGH") & (final_file['Prediction'] == 'Substrate')])
-    substrates_mc = len(final_file[(final_file['Confidence'] == "MEDIUM") & (final_file['Prediction'] == 'Substrate')])
-
-    # Count values in 'DA' column higher than 50 and 'class' is 'no'
-    non_substrates_hc = len(final_file[(final_file['Confidence'] == "HIGH") & (final_file['Prediction'] == 'Non Substrate')])
-    non_substrates_mc = len(final_file[(final_file['Confidence'] == "MEDIUM") & (final_file['Prediction'] == 'Non Substrate')])
-    keys = ["Substrate - High confidence", "Substrate - Medium confidence", "Non Substrate - High confidence", "Non Substrate - Medium confidence", "Non conclusive"]
-    fig = go.Figure(go.Pie(labels=keys, values=[substrates_hc, substrates_mc, non_substrates_hc, non_substrates_mc, non_conclusives]))
     
-    #fig.update_layout(plot_bgcolor = 'rgb(256,256,256)', title_text="Global Emissions 1990-2011",
-                            #title_font = dict(size=25, family='Calibri', color='black'),
-                            #font =dict(size=20, family='Calibri'),
-                            #legend_title_font = dict(size=18, family='Calibri', color='black'),
-                            #legend_font = dict(size=15, family='Calibri', color='black'))
+    confident_tg = len(final_file[(final_file['Confidence'] == "HIGH")])
+    medium_confident_tg = len(final_file[(final_file['Confidence'] == "MEDIUM")])
+    non_confident_tg = len(final_file[(final_file['Confidence'] == "LOW")])
     
-    fig.update_layout(title_text=None)
+    keys = ["High confidence", "Medium confidence", "Low confidence",]
+    colors = ['palegreen', 'yellow', 'red']  # Define custom colors for each slice
+    fig = go.Figure(go.Pie(labels=keys, values=[confident_tg, medium_confident_tg, non_confident_tg], marker=dict(colors=colors)))
+    
+    fig.update_layout(plot_bgcolor = 'rgb(256,256,256)', title_text="Global Emissions 1990-2011",
+                            title_font = dict(size=25, family='Calibri', color='black'),
+                            font =dict(size=20, family='Calibri'),
+                            legend_title_font = dict(size=18, family='Calibri', color='black'),
+                            legend_font = dict(size=15, family='Calibri', color='black'))
+    
+    fig.update_layout(title_text='Percentage confidence')
     
     return fig
 
@@ -491,22 +514,29 @@ def final_plot(final_file):
 def filedownload1(df):
     csv = df.to_csv(index=True,header=True)
     b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
-    href = f'<a href="data:file/csv;base64,{b64}" download="OCT1_class_results.csv">Download CSV File with results</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="Tg_ml_results.csv">Download CSV File with results</a>'
     return href
 
-#%% CORRIDA
+#%% RUN
 
-loaded_model = pickle.load(open("models/" + "OCT1_models.pickle", 'rb'))
-loaded_desc = pickle.load(open("models/" + "OCT1_descriptors.pickle", 'rb'))
+data_train = pd.read_csv("data/" + "data_902_original_15desc_logTg_train.csv")
+mean_value = data_train['logTg'].mean()
+
+
+loaded_model = pickle.load(open("models/" + "svr_model.pickle", 'rb'))
+loaded_desc = pickle.load(open("models/" + "Tg_ml_descriptors.pickle", 'rb'))
 
 
 if uploaded_file_1 is not None:
     run = st.button("RUN")
     if run == True:
-        data = pd.read_csv(uploaded_file_1,sep="\t",header=None)       
-        descriptors_total, smiles_list = calcular_descriptores(data)
-        X_final1, smiles_final = all_correct_model(descriptors_total,loaded_desc, smiles_list)
-        final_file, styled_df = predictions(loaded_model, loaded_desc, X_final1)
+        data = pd.read_csv(uploaded_file_1,) 
+        train_data = data_train[loaded_desc]
+        test_data, id_list =  reading_reorder(data)
+        X_final1, id = all_correct_model(test_data,loaded_desc, id_list)
+        X_final2= X_final1.iloc[:,1:]
+        df_train_normalized, df_test_normalized = normalize_data(train_data, X_final2)
+        final_file, styled_df = predictions(loaded_model, loaded_desc, df_test_normalized)
         figure  = final_plot(final_file)  
         col1, col2 = st.columns(2)
 
@@ -522,12 +552,15 @@ if uploaded_file_1 is not None:
 
 # Example file
 else:
-    st.info('👈🏼👈🏼👈🏼      Awaiting for TXT file to be uploaded.')
-    if st.button('Press to use Example Dataset'):
-        data = pd.read_csv("example_file.txt",sep="\t",header=None)
-        descriptors_total, smiles_list = calcular_descriptores(data)
-        X_final1, smiles_final = all_correct_model(descriptors_total,loaded_desc, smiles_list)
-        final_file, styled_df = predictions(loaded_model, loaded_desc, X_final1)
+    st.info('👈🏼👈🏼👈🏼   Awaiting for CSV file to be uploaded.')
+    if st.button('Press to use Example CSV Dataset with Alvadesc Descriptors'):
+        data = pd.read_csv("example_file.csv")
+        train_data = data_train[loaded_desc]
+        test_data, id_list =  reading_reorder(data)
+        X_final1, id = all_correct_model(test_data,loaded_desc, id_list)
+        X_final2= X_final1.iloc[:,1:]
+        df_train_normalized, df_test_normalized = normalize_data(train_data, X_final2)
+        final_file, styled_df = predictions(loaded_model, loaded_desc, df_test_normalized)
         figure  = final_plot(final_file)  
         col1, col2 = st.columns(2)
         with col1:
@@ -565,12 +598,9 @@ text-align: center;
 </style>
 <div class="footer">
 <p>Made in  🐍 and <img style='display: ; 
-' href="https://streamlit.io" src="https://i.imgur.com/iIOA6kU.png" target="_blank"></img> Developed with ❤️ by <a style='display: ;
- text-align: center' href="https://twitter.com/maxifallico" target="_blank">Maximiliano Fallico</a> ,  <a style='display:; 
- text-align: center' href="https://twitter.com/capigol" target="_blank">Lucas Alberca</a> and <a style='display: ; 
- text-align: center' href="https://twitter.com/carobellera" target="_blank">Caro Bellera</a> for <a style='display: ; 
- text-align: center;' href="https://lideb.biol.unlp.edu.ar/" target="_blank">LIDeB</a></p>
+' href="https://streamlit.io" src="https://i.imgur.com/iIOA6kU.png" target="_blank"></img> Developed by <a style='display: ;
+ text-align: center' href="https://www.linkedin.com/in/gerardo-m-casanola-martin-27238553/" target="_blank">Gerardo M. Casanola</a> for <a style='display: ; 
+ text-align: center;' href="http://www.rasulev.org" target="_blank">Rasulev Research Group</a></p>
 </div>
 """
 st.markdown(footer,unsafe_allow_html=True)
-
