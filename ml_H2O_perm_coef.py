@@ -86,51 +86,36 @@ st.sidebar.markdown("""
 uploaded_file_1 = st.sidebar.file_uploader("Upload a CSV file with SMILES and fractions", type=["csv"])
 
 
+
+
 #%% Standarization by MOLVS ####
 ####---------------------------------------------------------------------------####
 
-def standardizer(df):
+def standardizer(df,pos):
     s = Standardizer()
-    molecules1 = df[3].tolist()
-    molecules2 = df[4].tolist()
-    standardized_molecules1 = []
-    standardized_molecules2 = []
+    molecules = df[pos].tolist()
+    standardized_molecules = []
+    smi_pos=pos-2
     i = 1
-    j = 1
     t = st.empty()
-    w = st.empty()
+    
     
 
-    for molecule1 in molecules1:
+    for molecule in molecules:
         try:
-            smiles1 = molecule1.strip()
-            mol1 = Chem.MolFromSmiles(smiles1)
-            standarized_mol1 = s.super_parent(mol1) 
-            standardizer_smiles1 = Chem.MolToSmiles(standarized_mol1)
-            standardized_molecules1.append(standardizer_smiles1)
-            # st.write(f'\rProcessing molecule {i}/{len(molecules1)}', end='', flush=True)
-            t.markdown("Processing monomers: " + str(i) +"/" + str(len(molecules1)))
+            smiles = molecule.strip()
+            mol = Chem.MolFromSmiles(smiles)
+            standarized_mol = s.super_parent(mol) 
+            standardizer_smiles = Chem.MolToSmiles(standarized_mol)
+            standardized_molecules.append(standardizer_smiles)
+            # st.write(f'\rProcessing molecule {i}/{len(molecules)}', end='', flush=True)
+            t.markdown("Processing monomers: " + str(i) +"/" + str(len(molecules)))
 
             i = i + 1
         except:
-            standardized_molecules1.append(molecule1)
-    df['standarized_SMILES_1'] = standardized_molecules1
+            standardized_molecules.append(molecule)
+    df['standarized_SMILES'] = standardized_molecules
 
-    for molecule2 in molecules2:
-        try:
-            smiles2 = molecule2.strip()
-            mol2 = Chem.MolFromSmiles(smiles2)
-            standarized_mol2 = s.super_parent(mol2) 
-            standardizer_smiles2 = Chem.MolToSmiles(standarized_mol2)
-            standardized_molecules2.append(standardizer_smiles2)
-            # st.write(f'\rProcessing molecule {i}/{len(molecules1)}', end='', flush=True)
-            w.markdown("Processing monomers: " + str(j) +"/" + str(len(molecules2)))
-
-            j = j + 1
-        except:
-            standardized_molecules2.append(molecule2)
-    df['standarized_SMILES_2'] = standardized_molecules2
-    
     return df
 
 
@@ -271,8 +256,8 @@ def smile_obabel_corrector(smiles_ionized):
 
 #%% formal charge calculation
 
-def formal_charge_calculation(descriptores):
-    smiles_list = descriptores["Smiles_OK"]
+def formal_charge_calculation(descriptors):
+    smiles_list = descriptors["Smiles_OK"]
     charges = []
     for smiles in smiles_list:
         try:
@@ -282,64 +267,55 @@ def formal_charge_calculation(descriptores):
         except:
             charges.append(None)
         
-    descriptores["Formal_charge"] = charges
-    return descriptores
+    descriptors["Formal_charge"] = charges
+    return descriptors
 
 
 #%% Calculating molecular descriptors
 ### ----------------------- ###
 
-def calcular_descriptores(data):
+def calc_descriptors(data, smiles_col_pos):
+    descriptors_total_list = []
+    smiles_list = []
     
-    data1x = pd.DataFrame()
-    df_quasi_final_estandarizado = estandarizador(data)
-    suppl = list(df_quasi_final_estandarizado["standarized_SMILES"])
-
-    smiles_ph_ok = []
-    t = st.empty()
-
-    for i,molecula in enumerate(suppl):
-        smiles_ionized = charges_ph(molecula, 7.4)
-        smile_checked = smile_obabel_corrector(smiles_ionized)
-        smile_final = smile_checked.rstrip()
-        smiles_ph_ok.append(smile_final)
+    # Loop through each molecule in the dataset
+    for pos, row in data.iterrows():
+        molecule_name = row[0]  # Assuming the first column contains the molecule names
+        molecule_smiles = row[smiles_col_pos]  # Assuming the specified column contains the SMILES
         
-    df_quasi_final_estandarizado["Final_SMILES"] = smiles_ph_ok
+        try:
+            mol = Chem.MolFromSmiles(molecule_smiles)
+            if mol is not None:
+                smiles_ionized = charges_ph(molecule_smiles, 7.4)
+                smile_checked = smile_obabel_corrector(smiles_ionized)
+                smile_final = smile_checked.rstrip()
+                smiles_list.append(smile_final)
+                
+                calc = Calculator(descriptors, ignore_3D=True)
+                descriptor_values = calc(mol).asdict()
+                
+                # Create a dictionary with molecule name as key and descriptor values as values
+                descriptors_dict = {'NAME': molecule_name}
+                descriptors_dict.update(descriptor_values)
+                
+                descriptors_total_list.append(descriptors_dict)
+        except:
+            st.write(f'Molecule {molecule_name} has been removed (molecule not allowed by Mordred descriptor)')
+    else:
+        pass
     
-    calc = Calculator(descriptors, ignore_3D=True) 
-    # t = st.empty()
-   
-    smiles_ok = []
-    for i,smiles in enumerate(smiles_ph_ok):
-        if __name__ == "__main__":
-                if smiles != None:
-                    try:
-                        mol = Chem.MolFromSmiles(smiles)
-                        freeze_support()
-                        descriptor1 = calc(mol)
-                        resu = descriptor1.asdict()
-                        solo_nombre = {'NAME' : f'SMILES_{i+1}'}
-                        solo_nombre.update(resu)
-
-                        solo_nombre = pd.DataFrame.from_dict(data=solo_nombre,orient="index")
-                        data1x = pd.concat([data1x, solo_nombre],axis=1, ignore_index=True)
-                        smiles_ok.append(smiles)
-                        t.markdown("Calculating descriptors for molecule: " + str(i +1) +"/" + str(len(smiles_ph_ok)))
-                    except:
-                        
-                        st.write(f'\rMolecule {smiles} has been removed (molecule not allowed by Mordred descriptor)')
-                else:
-                    pass
-
-    data1x = data1x.T
-    descriptores = data1x.set_index('NAME',inplace=False).copy()
-    descriptores = descriptores.reindex(sorted(descriptores.columns), axis=1)   
-    descriptores.replace([np.inf, -np.inf], np.nan, inplace=True)
-    descriptores = descriptores.apply(pd.to_numeric, errors = 'coerce') 
-    descriptores["Smiles_OK"] = smiles_ok
-    descriptors_total = formal_charge_calculation(descriptores)
+    # Convert the list of dictionaries to a DataFrame
+    descriptors_total = pd.DataFrame(descriptors_total_list)
+    descriptors_total = descriptors_total.set_index('NAME',inplace=False).copy()
+    descriptors_total = descriptors_total.reindex(sorted(descriptors_total.columns), axis=1)   
+    descriptors_total.replace([np.inf, -np.inf], np.nan, inplace=True)
+    descriptors_total["Smiles_OK"] = smiles_list
     
-    return descriptors_total, smiles_ok
+    # Perform formal charge calculation
+    descriptors_total = formal_charge_calculation(descriptors_total)
+    
+    return descriptors_total, smiles_list
+
 
 #%% Determining Applicability Domain (AD)
 
