@@ -332,6 +332,10 @@ def reading_reorder(data):
 #%% normalizing data
 ### ----------------------- ###
 
+def mixture_descriptors(data1,data2,w1,w2):
+    
+
+
 def normalize_data(train_data, test_data):
     # Normalize the training data
     df_train = pd.DataFrame(train_data)
