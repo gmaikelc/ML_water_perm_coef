@@ -8,3 +8,4 @@ molvs
 mordred
 plotly
 scikit-learn
+networkx
