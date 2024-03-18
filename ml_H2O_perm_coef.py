@@ -377,19 +377,24 @@ def reading_reorder(data):
         
     #Select the specified columns from the DataFrame
     df_selected = data[loaded_desc]
-    id = data.iloc[:,0]
+    df_id = data.reset_index()
+    df_id.rename(columns={'index': 'NAME'}, inplace=True)
+    id = df_id['NAME'] 
     # Order the DataFrame by the specified list of columns
     test_data = df_selected.reindex(columns=loaded_desc)
     #descriptors_total = data[loaded_desc]
-    
+
     return test_data, id
 
-#%% normalizing data
+
+#%% mixture descriptors calculation
 ### ----------------------- ###
 
 def mixture_descriptors(data1,data2,w1,w2):
-    
 
+
+#%% normalizing data
+### ----------------------- ###
 
 def normalize_data(train_data, test_data):
     # Normalize the training data
