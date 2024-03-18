@@ -57,15 +57,14 @@ st.title(':computer: _ml_H2O water permeant coeff predictor_ ')
 
 st.write("""
 
-**It is a free web-application for Glass Transition Temperature Prediction**
+**It is a free web-application for H2O permeability Coefficient Prediction**
 
-The glass transition temperature (Tg) is one of the most important properties of polymeric materials and indicates an approximate temperature below which a macromolecular system changes from a relatively soft, 
-flexible and rubbery state to a hard, brittle and glass-like one1. The Tg value also determines the utilization limits of many rubbers and thermoplastic materials. 
-Besides, the drastic changes in the mobility of the molecules in different glassy states (from the frozen to the thawed state) affect many other chemical and physical properties, 
-such as mechanical modulus, acoustical properties, specific heat, viscosity, mechanical energy absorption, density, dielectric coefficients, viscosity and the gases and liquids difussion rate in the polymer material. 
-The change of these mechanical properties also specifies the employment of the material and the manufacturing process.
+In the food packaging industry, the permeability of packaging materials to water vapor plays a pivotal role in determining the shelf-life and quality of packaged products. 
+The water vapor permeability of packaging materials directly influences the transfer of moisture between the packaged food and the surrounding environment, 
+impacting factors such as freshness, crispness, and dehydration prevention. It is essential for food packaging films to have low water vapor permeability to minimize moisture transfer, 
+thereby preserving the quality, extending the shelf-life of the food products, and helping in the development of sustainable packaging materials.
 
-The Tg ML predictor is a Web App that use a SVM regression model to predict the glass transition temperature. 
+The ML H2O perm predictor is a Web App that use a MLR regression model to predict the water permeability coefficient of polymers. 
 
 The tool uses the following packages [RDKIT](https://www.rdkit.org/docs/index.html), [Mordred](https://github.com/mordred-descriptor/mordred), [MOLVS](https://molvs.readthedocs.io/), [Openbabel](https://github.com/openbabel/openbabel),
 [Scikit-learn](https://scikit-learn.org/stable/)
@@ -73,7 +72,7 @@ The tool uses the following packages [RDKIT](https://www.rdkit.org/docs/index.ht
 """)
 
 
-image = Image.open('workflow_TGapp.png')
+image = Image.open('workflow_ml_H2O_perm.png')
 st.image(image, caption='Tg ML predictor workflow')
 
 
@@ -81,7 +80,7 @@ st.image(image, caption='Tg ML predictor workflow')
 # Sidebar - Collects user input features into dataframe
 st.sidebar.header('Upload your CSV file')
 st.sidebar.markdown("""
-[Example CSV input file](https://raw.githubusercontent.com/gmaikelc/ML_water_perm_coef/main/example_file.csv) 
+[Example CSV input file](https://raw.githubusercontent.com/gmaikelc/ML_water_perm_coef/main/example_file1.csv) 
 """)
 
 uploaded_file_1 = st.sidebar.file_uploader("Upload a CSV file with SMILES and fractions", type=["csv"])
