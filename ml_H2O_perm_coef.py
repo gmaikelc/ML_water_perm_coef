@@ -370,14 +370,11 @@ def calc_descriptors(data, smiles_col_pos):
     # Perform B07[O-O] descriptor calculation
     descriptors_total = check_oo_distance(descriptors_total)
 
-    
-    
     return descriptors_total, smiles_list
 
 
 def reading_reorder(data):
-     
-   
+        
     #Select the specified columns from the DataFrame
     df_selected = data[loaded_desc]
     id = data.iloc[:,0]
