@@ -384,6 +384,19 @@ def reading_reorder(data):
     test_data = df_selected.reindex(columns=loaded_desc)
     #descriptors_total = data[loaded_desc]
 
+    # Cleaning from invalid string values
+    #Converting the columns to strings
+    test_data['GATS7se'] = test_data1['GATS7se'].astype(str)
+    test_data['GATS4i'] = test_data1['GATS4i'].astype(str)
+
+    #Replacing the invalid string with 0
+    mapping = {'invalid value encountered in double_scalars (GATS7se)': 0.0,'invalid value encountered in double_scalars (GATS4i)': 0.0,}
+    test_data1=test_data1.replace({'GATS7se': mapping, 'GATS4i': mapping})
+
+    # Converting back to numbers
+    test_data1['GATS7se']= pd.to_numeric(test_data1['GATS7se'], errors='coerce')
+    test_data1['GATS4i'] = pd.to_numeric(test_data1['GATS4i'], errors='coerce')
+
     return test_data, id
 
 
@@ -583,8 +596,8 @@ def filedownload1(df):
 
 #%% RUN
 
-data_train = pd.read_csv("data/" + "data_902_original_15desc_logTg_train.csv")
-mean_value = data_train['logTg'].mean()
+data_train = pd.read_csv("data/" + "data_56c_8var_logP_train.csv")
+mean_value = data_train['logP'].mean()
 
 
 loaded_model = pickle.load(open("models/" + "svr_model.pickle", 'rb'))
