@@ -601,7 +601,7 @@ def final_plot(final_file):
 def filedownload1(df):
     csv = df.to_csv(index=True,header=True)
     b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
-    href = f'<a href="data:file/csv;base64,{b64}" download="Tg_ml_results.csv">Download CSV File with results</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="ml_H2O_perm_results.csv">Download CSV File with results</a>'
     return href
 
 #%% RUN
@@ -610,7 +610,7 @@ data_train = pd.read_csv("data/" + "data_56c_8var_logP_train.csv")
 mean_value = data_train['logP'].mean()
 
 
-loaded_model = pickle.load(open("models/" + "svr_model.pickle", 'rb'))
+loaded_model = pickle.load(open("models/" + "mlr_model.pickle", 'rb'))
 loaded_desc = pickle.load(open("models/" + "Tg_ml_descriptors.pickle", 'rb'))
 
 
