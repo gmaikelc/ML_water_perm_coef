@@ -19,6 +19,7 @@ from multiprocessing import freeze_support
 import numpy as np
 from rdkit.Chem import AllChem
 import plotly.graph_objects as go
+import networkx as nx
 
 # packages for streamlit
 import streamlit as st
@@ -271,6 +272,58 @@ def formal_charge_calculation(descriptors):
     return descriptors
 
 
+
+#%% B07[O-O] descriptor calculation
+
+def check_oo_distance(descriptors):
+    # Initialize a list to store the results
+    smiles_list = descriptors["Smiles_OK"]
+    distance7 = []
+    
+    # Iterate over the SMILES in the specified column of the DataFrame
+    for smiles in smiles_list:
+        # Convert SMILES to RDKit Mol object
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            # Append NaN if SMILES cannot be converted to a molecule
+            distance7.append(float('nan'))
+            continue
+        
+        # Generate the molecular graph representation
+        mol_graph = Chem.RWMol(mol)
+        Chem.SanitizeMol(mol_graph)
+        mol_graph = Chem.RemoveHs(mol_graph)
+        mol_graph = Chem.GetAdjacencyMatrix(mol_graph)
+        G = nx.Graph(mol_graph)
+        
+        # Initialize the presence/absence flag
+        presence_flag = 0
+        
+        # Find all pairs of oxygen atoms in the molecule
+        oxygen_atoms = [atom.GetIdx() for atom in mol.GetAtoms() if atom.GetSymbol() == 'O']
+        
+        # Check for paths of length 7 between oxygen atoms
+        for source in oxygen_atoms:
+            for target in oxygen_atoms:
+                if source != target:
+                    # Use networkx shortest_path_length to check the shortest path length
+                    shortest_path_length = nx.shortest_path_length(G, source=source, target=target)
+                    if shortest_path_length == 7:
+                        presence_flag = 1
+                        break
+            if presence_flag == 1:
+                break
+        
+        # Append the result to the list
+        distance7.append(presence_flag)
+    
+    # Add the results as a new column in the DataFrame
+    descriptors['B07[O-O]'] = distance7
+    
+    return descriptors
+
+
+
 #%% Calculating molecular descriptors
 ### ----------------------- ###
 
@@ -313,6 +366,11 @@ def calc_descriptors(data, smiles_col_pos):
     
     # Perform formal charge calculation
     descriptors_total = formal_charge_calculation(descriptors_total)
+
+    # Perform B07[O-O] descriptor calculation
+    descriptors_total = check_oo_distance(descriptors_total)
+
+    
     
     return descriptors_total, smiles_list
 
