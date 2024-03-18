@@ -386,16 +386,16 @@ def reading_reorder(data):
 
     # Cleaning from invalid string values
     #Converting the columns to strings
-    test_data['GATS7se'] = test_data1['GATS7se'].astype(str)
-    test_data['GATS4i'] = test_data1['GATS4i'].astype(str)
+    test_data['GATS7se'] = test_data['GATS7se'].astype(str)
+    test_data['GATS4i'] = test_data['GATS4i'].astype(str)
 
     #Replacing the invalid string with 0
     mapping = {'invalid value encountered in double_scalars (GATS7se)': 0.0,'invalid value encountered in double_scalars (GATS4i)': 0.0,}
-    test_data1=test_data1.replace({'GATS7se': mapping, 'GATS4i': mapping})
+    test_data=test_data.replace({'GATS7se': mapping, 'GATS4i': mapping})
 
     # Converting back to numbers
-    test_data1['GATS7se']= pd.to_numeric(test_data1['GATS7se'], errors='coerce')
-    test_data1['GATS4i'] = pd.to_numeric(test_data1['GATS4i'], errors='coerce')
+    test_data['GATS7se']= pd.to_numeric(test_data['GATS7se'], errors='coerce')
+    test_data['GATS4i'] = pd.to_numeric(test_data['GATS4i'], errors='coerce')
 
     return test_data, id
 
