@@ -403,8 +403,35 @@ def reading_reorder(data):
 #%% mixture descriptors calculation
 ### ----------------------- ###
 
-def mixture_descriptors(data1,data2,w1,w2):
+def mixture_descriptors(data1, data2):
+    # Extract component fractions
+    component1 = data['Component1']
+    component2 = data['Component2']
 
+    # Multiply corresponding rows in data1 and data2 for all columns
+    df_mixture_left = component1.values[:, None] * test_data1.values
+    df_mixture_right = component2.values[:, None] * test_data2.values
+
+    # Create a new DataFrame using the result and set column names from data1 and data2
+    df_mixture_left = pd.DataFrame(df_mixture_left, columns=test_data1.columns)
+    df_mixture_right = pd.DataFrame(df_mixture_right, columns=test_data2.columns)
+
+    # Initialize DataFrame for the final result
+    df_sum_mixture = pd.DataFrame()
+
+    # Check if Component2 is 0 or NaN, if so, only use the result from df_mixture_left
+    for index, value in component2.iteritems():
+        if pd.isnull(value) or value == 0:
+            df_sum_mixture = df_mixture_left
+        elif value == 1:
+            df_sum_mixture = df_mixture_left
+        else:
+            # Sum the DataFrames row-wise by column name
+            df_sum_mixture = df_mixture_left.add(df_mixture_right)
+
+    return df_sum_mixture
+
+    
 
 #%% normalizing data
 ### ----------------------- ###
@@ -453,24 +480,7 @@ def applicability_domain(x_test_normalized, x_train_normalized):
             h_results.append(False)         
     return h_results
 
-#%% Removing molecules with na in any descriptor
 
-def all_correct_model(test_data,loaded_desc, id_list):
-    
-    X_final = test_data[loaded_desc]
-    X_final["ID"] = id_list
-    # Assuming X_final is your DataFrame
-    id_list = X_final["ID"]  # Extract the ID column
-    X_final.drop(columns=["ID"], inplace=True)  # Drop the ID column from its original position
-    X_final.insert(0, "ID", id_list)  # Insert the ID column at the first position
-    
-    rows_with_na = X_final[X_final.isna().any(axis=1)]         # Find rows with NaN values
-    for molecule in rows_with_na["ID"]:
-        st.write(f'\rMolecule {molecule} has been removed (NA value  in any of the necessary descriptors)')
-    X_final1 = X_final.dropna(axis=0,how="any",inplace=False)
-    
-    id = X_final1["ID"]
-    return X_final1, id
 
  # Function to assign colors based on confidence values
 def get_color(confidence):
@@ -610,8 +620,9 @@ if uploaded_file_1 is not None:
         data = pd.read_csv(uploaded_file_1,) 
         train_data = data_train[loaded_desc]
         test_data, id_list =  reading_reorder(data)
-        X_final1, id = all_correct_model(test_data,loaded_desc, id_list)
-        X_final2= X_final1.iloc[:,1:]
+        test_data_mix= mixture_descriptors(test_data1,test_data1)
+        #X_final1, id = all_correct_model(test_data_mix,loaded_desc, id_list)
+        X_final2= test_data_mix
         df_train_normalized, df_test_normalized = normalize_data(train_data, X_final2)
         final_file, styled_df = predictions(loaded_model, loaded_desc, df_test_normalized)
         figure  = final_plot(final_file)  
