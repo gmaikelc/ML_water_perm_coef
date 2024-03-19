@@ -514,8 +514,6 @@ def get_color(confidence):
 
 #%% Predictions        
 
-#%% Predictions        
-
 def predictions(loaded_model, loaded_desc, df_test_normalized):
     scores = []
     h_values = []
