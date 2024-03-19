@@ -418,9 +418,9 @@ def mixture_descriptors(data1, data2):
     # Initialize DataFrame for the final result
     df_sum_mixture = pd.DataFrame()
 
-    # Check if Component2 is 0 or NaN, if so, only use the result from df_mixture_left
+    # Check if Component2 is 0, if so, only use the result from df_mixture_left
     for index, value in component2.iteritems():
-        if pd.isnull(value) or value == 0:
+        if value == 0:
             df_sum_mixture = df_mixture_left
         elif value == 1:
             df_sum_mixture = df_mixture_left
