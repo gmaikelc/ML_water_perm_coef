@@ -520,7 +520,7 @@ def predictions(loaded_model, loaded_desc, df_test_normalized):
     scores = []
     h_values = []
     std_resd = []
-    idx = X_final1['ID']
+    idx = data['ID']
 
     descriptors_model = loaded_desc
         
