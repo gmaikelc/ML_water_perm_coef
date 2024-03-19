@@ -618,8 +618,16 @@ if uploaded_file_1 is not None:
     if run == True:
         data = pd.read_csv(uploaded_file_1,) 
         train_data = data_train[loaded_desc]
-        test_data, id_list =  reading_reorder(data)
-        test_data_mix= mixture_descriptors(test_data1,test_data1)
+        # Calculate descriptors and SMILES for the first column
+        descriptors_total_1, smiles_list_1 = calc_descriptors(data, 3)
+        # Calculate descriptors and SMILES for the second column
+        descriptors_total_2, smiles_list_2 = calc_descriptors(data, 4)
+        #Selecting the descriptors based on model for first component
+        test_data1, id_list_1 =  reading_reorder(descriptors_total_1)
+        #Selecting the descriptors based on model for first component
+        test_data2, id_list_1 =  reading_reorder(descriptors_total_2)
+        #Calculating mixture descriptors    
+        test_data_mix= mixture_descriptors(test_data1,test_data2)
         #X_final1, id = all_correct_model(test_data_mix,loaded_desc, id_list)
         X_final2= test_data_mix
         df_train_normalized, df_test_normalized = normalize_data(train_data, X_final2)
@@ -640,12 +648,21 @@ if uploaded_file_1 is not None:
 # Example file
 else:
     st.info('👈🏼👈🏼👈🏼   Awaiting for CSV file to be uploaded.')
-    if st.button('Press to use Example CSV Dataset with Alvadesc Descriptors'):
-        data = pd.read_csv("example_file.csv")
+    if st.button('Press to use Example CSV Dataset with fractions and smiles'):
+        data = pd.read_csv("example_file1.csv")
         train_data = data_train[loaded_desc]
-        test_data, id_list =  reading_reorder(data)
-        X_final1, id = all_correct_model(test_data,loaded_desc, id_list)
-        X_final2= X_final1.iloc[:,1:]
+        # Calculate descriptors and SMILES for the first column
+        descriptors_total_1, smiles_list_1 = calc_descriptors(data, 3)
+        # Calculate descriptors and SMILES for the second column
+        descriptors_total_2, smiles_list_2 = calc_descriptors(data, 4)
+        #Selecting the descriptors based on model for first component
+        test_data1, id_list_1 =  reading_reorder(descriptors_total_1)
+        #Selecting the descriptors based on model for first component
+        test_data2, id_list_1 =  reading_reorder(descriptors_total_2)
+        #Calculating mixture descriptors    
+        test_data_mix= mixture_descriptors(test_data1,test_data2)
+        #X_final1, id = all_correct_model(test_data_mix,loaded_desc, id_list)
+        X_final2= test_data_mix
         df_train_normalized, df_test_normalized = normalize_data(train_data, X_final2)
         final_file, styled_df = predictions(loaded_model, loaded_desc, df_test_normalized)
         figure  = final_plot(final_file)  
