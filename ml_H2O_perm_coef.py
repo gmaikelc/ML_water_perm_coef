@@ -629,6 +629,7 @@ if uploaded_file_1 is not None:
         #Calculating mixture descriptors    
         test_data_mix= mixture_descriptors(test_data1,test_data2)
         #X_final1, id = all_correct_model(test_data_mix,loaded_desc, id_list)
+        print(test_data_mix)
         X_final2= test_data_mix
         df_train_normalized, df_test_normalized = normalize_data(train_data, X_final2)
         final_file, styled_df = predictions(loaded_model, loaded_desc, df_test_normalized)
