@@ -608,7 +608,19 @@ def final_plot(final_file):
 def filedownload1(df):
     csv = df.to_csv(index=True,header=True)
     b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
-    href = f'<a href="data:file/csv;base64,{b64}" download="ml_H2O_perm_results.csv">Download CSV File with results</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="ml H2O results">Download CSV File with results</a>'
+    return href
+
+def filedownload2(df):
+    csv = df.to_csv(index=True,header=True)
+    b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
+    href = f'<a href="data:file/csv;base64,{b64}" download="Component1 results">Download CSV File with results Component1</a>'
+    return href
+
+def filedownload3(df):
+    csv = df.to_csv(index=True,header=True)
+    b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
+    href = f'<a href="data:file/csv;base64,{b64}" download="Component2 results">Download CSV File with results Component2</a>'
     return href
 
 #%% RUN
@@ -644,6 +656,11 @@ if uploaded_file_1 is not None:
         test_data1, id_list_1 =  reading_reorder(descriptors_total_1)
         #Selecting the descriptors based on model for first component
         test_data2, id_list_1 =  reading_reorder(descriptors_total_2m)
+ 
+        st.markdown(filedownload2(test_data1), unsafe_allow_html=True)
+        st.markdown(filedownload2(test_data2), unsafe_allow_html=True)
+
+        
         #Calculating mixture descriptors    
         test_data_mix= mixture_descriptors(test_data1,test_data2)
         #X_final1, id = all_correct_model(test_data_mix,loaded_desc, id_list)
