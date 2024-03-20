@@ -614,7 +614,7 @@ def filedownload1(df):
 
 #%% RUN
 
-data_train = pd.read_csv("data/" + "data_56c_8var_logP_train.csv")
+data_train = pd.read_csv("data/" + "data_56c_8var_logP_train_mix.csv")
 mean_value = data_train['logP'].mean()
 
 
@@ -647,7 +647,6 @@ if uploaded_file_1 is not None:
         #Calculating mixture descriptors    
         test_data_mix= mixture_descriptors(test_data1,test_data2)
         #X_final1, id = all_correct_model(test_data_mix,loaded_desc, id_list)
-        print(test_data_mix)
         X_final2= test_data_mix
         df_train_normalized, df_test_normalized = normalize_data(train_data, X_final2)
         final_file, styled_df = predictions(loaded_model, loaded_desc, df_test_normalized)
@@ -674,6 +673,15 @@ else:
         descriptors_total_1, smiles_list_1 = calc_descriptors(data, 3)
         # Calculate descriptors and SMILES for the second column
         descriptors_total_2, smiles_list_2 = calc_descriptors(data, 4)
+
+        joint_dummy = descriptors_total_1[['Formal_charge']]
+        # Left join
+        descriptors_total_2n = joint_dummy.join(descriptors_total_2, how='left', lsuffix='_df1', rsuffix='_df2')
+        #drop the first column
+        descriptor_total_2na = descriptors_total_2n.iloc[:,1:]
+        # Fill NaN values with 0
+        descriptors_total_2 = descriptor_total_2na.fillna(0)
+        
         #Selecting the descriptors based on model for first component
         test_data1, id_list_1 =  reading_reorder(descriptors_total_1)
         #Selecting the descriptors based on model for first component
