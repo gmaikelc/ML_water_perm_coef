@@ -83,7 +83,7 @@ The tool uses the following packages [RDKIT](https://www.rdkit.org/docs/index.ht
 
 
 image = Image.open('workflow_ml_H2O_perm.png')
-st.image(image, caption='Tg ML predictor workflow')
+st.image(image, caption='ML H2O permeability coefficient workflow')
 
 
 #---------------------------------#
