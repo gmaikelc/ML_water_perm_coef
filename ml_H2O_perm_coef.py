@@ -628,6 +628,12 @@ def filedownload4(df):
     href = f'<a href="data:file/csv;base64,{b64}" download="Mixture results">Download CSV File with results Mixture</a>'
     return href
 
+def filedownload5(df):
+    csv = df.to_csv(index=True,header=True)
+    b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
+    href = f'<a href="data:file/csv;base64,{b64}" download="Mixture normalized results">Download CSV File with results normalized Mixture</a>'
+    return href
+
 #%% RUN
 
 data_train = pd.read_csv("data/" + "data_56c_8var_logP_train_mix.csv")
@@ -672,6 +678,7 @@ if uploaded_file_1 is not None:
         #X_final1, id = all_correct_model(test_data_mix,loaded_desc, id_list)
         X_final2= test_data_mix
         df_train_normalized, df_test_normalized = normalize_data(train_data, X_final2)
+        st.markdown(filedownload4(df_test_normalized), unsafe_allow_html=True)
         #final_file, styled_df = predictions(loaded_model, loaded_desc, df_test_normalized)
         #figure  = final_plot(final_file)  
         #col1, col2 = st.columns(2)
