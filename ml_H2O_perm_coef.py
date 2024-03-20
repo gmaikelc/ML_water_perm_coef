@@ -431,11 +431,9 @@ def mixture_descriptors(data1, data2):
     for value in data['Component2']:
         if value == 0:
             df_sum_mixture = df_mixture_left
-        elif value == 1:
-            df_sum_mixture = df_mixture_left
         else:
             # Sum the DataFrames row-wise by column name
-            df_sum_mixture = df_mixture_left.add(df_mixture_right,fill_value=0)
+            df_sum_mixture = df_mixture_left.add(df_mixture_right)
             # Set the index of df1 to match the index of df2
             df_sum_mixture.set_index(test_data1.index, inplace=True)
 
@@ -677,14 +675,14 @@ else:
         # Left join
         descriptors_total_2n = joint_dummy.join(descriptors_total_2, how='left', lsuffix='_df1', rsuffix='_df2')
         #drop the first column
-        descriptor_total_2na = descriptors_total_2n.iloc[:,1:]
+        descriptors_total_2na = descriptors_total_2n.iloc[:,1:]
         # Fill NaN values with 0
-        descriptors_total_2 = descriptor_total_2na.fillna(0)
+        descriptors_total_2m = descriptors_total_2na.fillna(0)
         
         #Selecting the descriptors based on model for first component
         test_data1, id_list_1 =  reading_reorder(descriptors_total_1)
         #Selecting the descriptors based on model for first component
-        test_data2, id_list_1 =  reading_reorder(descriptors_total_2)
+        test_data2, id_list_1 =  reading_reorder(descriptors_total_2m)
         #Calculating mixture descriptors    
         test_data_mix= mixture_descriptors(test_data1,test_data2)
         #X_final1, id = all_correct_model(test_data_mix,loaded_desc, id_list)
