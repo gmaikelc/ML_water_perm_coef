@@ -63,7 +63,7 @@ st.markdown("The group of Prof. Rasulev is focused on development of artificial 
 # Introduction
 #---------------------------------#
 
-st.title(':computer: ml H2O permeant coeff predictor_ ')
+st.title(':computer: ml H2O permeability coefficient predictor')
 
 st.write("""
 
