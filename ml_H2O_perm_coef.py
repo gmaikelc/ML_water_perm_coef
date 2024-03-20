@@ -339,7 +339,7 @@ def check_oo_distance(descriptors):
 def calc_descriptors(data, smiles_col_pos):
     descriptors_total_list = []
     smiles_list = []
-    
+    i=0
     # Loop through each molecule in the dataset
     for pos, row in data.iterrows():
         molecule_name = row[0]  # Assuming the first column contains the molecule names
@@ -363,6 +363,7 @@ def calc_descriptors(data, smiles_col_pos):
             descriptors_dict.update(descriptor_values)
                 
             descriptors_total_list.append(descriptors_dict)
+            t.markdown("Calculating descriptors for molecule: " + str(i +1) +"/" + str(len(molecule_smiles)))
     
     # Convert the list of dictionaries to a DataFrame
     descriptors_total = pd.DataFrame(descriptors_total_list)
