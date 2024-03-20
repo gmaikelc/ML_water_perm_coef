@@ -630,6 +630,15 @@ if uploaded_file_1 is not None:
         descriptors_total_1, smiles_list_1 = calc_descriptors(data, 3)
         # Calculate descriptors and SMILES for the second column
         descriptors_total_2, smiles_list_2 = calc_descriptors(data, 4)
+
+        joint_dummy = descriptors_total_1[['Formal_charge']]
+        # Left join
+        descriptors_total_2n = joint_dummy.join(descriptors_total_2, how='left', lsuffix='_df1', rsuffix='_df2')
+        #drop the first column
+        descriptor_total_2na = descriptors_total_2n.iloc[:,1:]
+        # Fill NaN values with 0
+        descriptor_total_2 = descriptor_total_2na.fillna(0)
+        
         #Selecting the descriptors based on model for first component
         test_data1, id_list_1 =  reading_reorder(descriptors_total_1)
         #Selecting the descriptors based on model for first component
