@@ -637,7 +637,7 @@ if uploaded_file_1 is not None:
         #drop the first column
         descriptor_total_2na = descriptors_total_2n.iloc[:,1:]
         # Fill NaN values with 0
-        descriptor_total_2 = descriptor_total_2na.fillna(0)
+        descriptors_total_2 = descriptor_total_2na.fillna(0)
         
         #Selecting the descriptors based on model for first component
         test_data1, id_list_1 =  reading_reorder(descriptors_total_1)
