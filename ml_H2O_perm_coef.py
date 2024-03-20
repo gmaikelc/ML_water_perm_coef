@@ -667,32 +667,30 @@ if uploaded_file_1 is not None:
         #Selecting the descriptors based on model for first component
         test_data2, id_list_1 =  reading_reorder(descriptors_total_2m)
  
-        st.markdown(filedownload2(test_data1), unsafe_allow_html=True)
-        st.markdown(filedownload3(test_data2), unsafe_allow_html=True)
-
+        #st.markdown(filedownload2(test_data1), unsafe_allow_html=True)
+        #st.markdown(filedownload3(test_data2), unsafe_allow_html=True)
         
         #Calculating mixture descriptors    
         test_data_mix= mixture_descriptors(test_data1,test_data2)
         test_data_mix.fillna(0,inplace=True)
         st.markdown(filedownload4(test_data_mix), unsafe_allow_html=True)
-        
-        
+                
         #X_final1, id = all_correct_model(test_data_mix,loaded_desc, id_list)
         X_final2= test_data_mix
         df_train_normalized, df_test_normalized = normalize_data(train_data, X_final2)
-        st.markdown(filedownload5(df_test_normalized), unsafe_allow_html=True)
-        #final_file, styled_df = predictions(loaded_model, loaded_desc, df_test_normalized)
-        #figure  = final_plot(final_file)  
-        #col1, col2 = st.columns(2)
+        #st.markdown(filedownload5(df_test_normalized), unsafe_allow_html=True)
+        final_file, styled_df = predictions(loaded_model, loaded_desc, df_test_normalized)
+        figure  = final_plot(final_file)  
+        col1, col2 = st.columns(2)
 
-        #with col1:
-         #   st.header("Predictions")
-          #  st.write(styled_df)
-        #with col2:
-         #   st.header("Resume")
-          #  st.plotly_chart(figure,use_container_width=True)
-        #st.markdown(":point_down: **Here you can download the results**", unsafe_allow_html=True)
-        #st.markdown(filedownload1(final_file), unsafe_allow_html=True)
+        with col1:
+            st.header("Predictions")
+            st.write(styled_df)
+        with col2:
+            st.header("Pie Chart % Confidence")
+            st.plotly_chart(figure,use_container_width=True)
+        st.markdown(":point_down: **Here you can download the results**", unsafe_allow_html=True)
+        st.markdown(filedownload1(final_file), unsafe_allow_html=True)
        
 
 # Example file
@@ -710,29 +708,37 @@ else:
         # Left join
         descriptors_total_2n = joint_dummy.join(descriptors_total_2, how='left', lsuffix='_df1', rsuffix='_df2')
         #drop the first column
-        descriptors_total_2na = descriptors_total_2n.iloc[:,1:]
+        descriptor_total_2na = descriptors_total_2n.iloc[:,1:]
         # Fill NaN values with 0
-        descriptors_total_2m = descriptors_total_2na.fillna(0)
-        
+        descriptors_total_2m = descriptor_total_2na.fillna(0)
+                
         #Selecting the descriptors based on model for first component
         test_data1, id_list_1 =  reading_reorder(descriptors_total_1)
         #Selecting the descriptors based on model for first component
         test_data2, id_list_1 =  reading_reorder(descriptors_total_2m)
+ 
+        #st.markdown(filedownload2(test_data1), unsafe_allow_html=True)
+        #st.markdown(filedownload3(test_data2), unsafe_allow_html=True)
+        
         #Calculating mixture descriptors    
         test_data_mix= mixture_descriptors(test_data1,test_data2)
+        test_data_mix.fillna(0,inplace=True)
+        #st.markdown(filedownload4(test_data_mix), unsafe_allow_html=True)
+                
         #X_final1, id = all_correct_model(test_data_mix,loaded_desc, id_list)
         X_final2= test_data_mix
         df_train_normalized, df_test_normalized = normalize_data(train_data, X_final2)
+        #st.markdown(filedownload5(df_test_normalized), unsafe_allow_html=True)
         final_file, styled_df = predictions(loaded_model, loaded_desc, df_test_normalized)
         figure  = final_plot(final_file)  
         col1, col2 = st.columns(2)
+
         with col1:
             st.header("Predictions")
             st.write(styled_df)
         with col2:
-            st.header("Resume")
+            st.header("Pie Chart % Confidence")
             st.plotly_chart(figure,use_container_width=True)
-  
         st.markdown(":point_down: **Here you can download the results**", unsafe_allow_html=True)
         st.markdown(filedownload1(final_file), unsafe_allow_html=True)
 
