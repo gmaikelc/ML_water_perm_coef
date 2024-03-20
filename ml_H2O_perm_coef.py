@@ -345,30 +345,25 @@ def calc_descriptors(data, smiles_col_pos):
         molecule_name = row[0]  # Assuming the first column contains the molecule names
         molecule_smiles = row[smiles_col_pos]  # Assuming the specified column contains the SMILES
         
-        try:
-            mol = Chem.MolFromSmiles(molecule_smiles)
-            if mol is not None:
-                smiles_ionized = charges_ph(molecule_smiles, 7.4)
-                smile_checked = smile_obabel_corrector(smiles_ionized)
-                smile_final = smile_checked.rstrip()
-                smiles_list.append(smile_final)
+        mol = Chem.MolFromSmiles(molecule_smiles)
+        if mol is not None:
+            smiles_ionized = charges_ph(molecule_smiles, 7.4)
+            smile_checked = smile_obabel_corrector(smiles_ionized)
+            smile_final = smile_checked.rstrip()
+            smiles_list.append(smile_final)
                 
-                calc = Calculator(descriptors, ignore_3D=True)
-                descriptor_values = calc(mol).asdict()
+            calc = Calculator(descriptors, ignore_3D=True)
+            descriptor_values = calc(mol).asdict()
                 
-                # Create a dictionary with molecule name as key and descriptor values as values
-                descriptors_dict = {'NAME': molecule_name}
-                descriptors_dict.update(descriptor_values)
+            # Create a dictionary with molecule name as key and descriptor values as values
+            descriptors_dict = {'NAME': molecule_name}
+            descriptors_dict.update(descriptor_values)
                 
-                descriptors_total_list.append(descriptors_dict)
-        except:
-            st.write(f'Molecule {molecule_name} has been removed (molecule not allowed by Mordred descriptor)')
-    else:
-        pass
+            descriptors_total_list.append(descriptors_dict)
     
     # Convert the list of dictionaries to a DataFrame
     descriptors_total = pd.DataFrame(descriptors_total_list)
-    descriptors_total = descriptors_total.set_index('NAME',inplace=False).copy()
+    descriptors_total = descriptors_total.set_index('NAME', inplace=False).copy()
     descriptors_total = descriptors_total.reindex(sorted(descriptors_total.columns), axis=1)   
     descriptors_total.replace([np.inf, -np.inf], np.nan, inplace=True)
     descriptors_total["Smiles_OK"] = smiles_list
@@ -380,6 +375,7 @@ def calc_descriptors(data, smiles_col_pos):
     descriptors_total = check_oo_distance(descriptors_total)
 
     return descriptors_total, smiles_list
+
 
 
 def reading_reorder(data):
