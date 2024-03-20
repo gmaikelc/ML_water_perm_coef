@@ -637,12 +637,13 @@ if uploaded_file_1 is not None:
         #drop the first column
         descriptor_total_2na = descriptors_total_2n.iloc[:,1:]
         # Fill NaN values with 0
-        descriptors_total_2 = descriptor_total_2na.fillna(0)
+        descriptors_total_2m = descriptor_total_2na.fillna(0)
+        descriptors_total_2m.to_csv('descriptors_total_2m.csv')
         
         #Selecting the descriptors based on model for first component
         test_data1, id_list_1 =  reading_reorder(descriptors_total_1)
         #Selecting the descriptors based on model for first component
-        test_data2, id_list_1 =  reading_reorder(descriptors_total_2)
+        test_data2, id_list_1 =  reading_reorder(descriptors_total_2m)
         #Calculating mixture descriptors    
         test_data_mix= mixture_descriptors(test_data1,test_data2)
         #X_final1, id = all_correct_model(test_data_mix,loaded_desc, id_list)
