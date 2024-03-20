@@ -426,7 +426,7 @@ def mixture_descriptors(data1, data2):
     df_mixture_right = pd.DataFrame(df_mixture_right, columns=test_data2.columns)
 
     # Initialize DataFrame for the final result
-    df_sum_mixture = pd.DataFrame()
+    df_sum_mixture = pd.DataFrame(index=test_data1.index)
 
     # Check if Component2 is 0, if so, only use the result from df_mixture_left
     for value in data['Component2']:
@@ -436,10 +436,11 @@ def mixture_descriptors(data1, data2):
             df_sum_mixture = df_mixture_left
         else:
             # Sum the DataFrames row-wise by column name
-            df_sum_mixture = df_mixture_left.add(df_mixture_right)
+            df_sum_mixture = df_mixture_left.add(df_mixture_right,fill_value=0)
+            # Set the index of df1 to match the index of df2
+            df_sum_mixture.set_index(test_data1.index, inplace=True)
 
     return df_sum_mixture
-
     
 
 #%% normalizing data
