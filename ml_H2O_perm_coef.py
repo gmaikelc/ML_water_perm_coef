@@ -622,6 +622,12 @@ def filedownload3(df):
     href = f'<a href="data:file/csv;base64,{b64}" download="Component2 results">Download CSV File with results Component2</a>'
     return href
 
+def filedownload4(df):
+    csv = df.to_csv(index=True,header=True)
+    b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
+    href = f'<a href="data:file/csv;base64,{b64}" download="Mixture results">Download CSV File with results Mixture</a>'
+    return href
+
 #%% RUN
 
 data_train = pd.read_csv("data/" + "data_56c_8var_logP_train_mix.csv")
@@ -656,11 +662,13 @@ if uploaded_file_1 is not None:
         test_data2, id_list_1 =  reading_reorder(descriptors_total_2m)
  
         st.markdown(filedownload2(test_data1), unsafe_allow_html=True)
-        st.markdown(filedownload2(test_data2), unsafe_allow_html=True)
+        st.markdown(filedownload3(test_data2), unsafe_allow_html=True)
 
         
         #Calculating mixture descriptors    
         test_data_mix= mixture_descriptors(test_data1,test_data2)
+        st.markdown(filedownload4(test_data_mix), unsafe_allow_html=True)
+        
         #X_final1, id = all_correct_model(test_data_mix,loaded_desc, id_list)
         X_final2= test_data_mix
         df_train_normalized, df_test_normalized = normalize_data(train_data, X_final2)
