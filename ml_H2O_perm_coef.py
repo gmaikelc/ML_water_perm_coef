@@ -363,7 +363,7 @@ def calc_descriptors(data, smiles_col_pos):
             descriptors_dict.update(descriptor_values)
                 
             descriptors_total_list.append(descriptors_dict)
-            t.markdown("Calculating descriptors for molecule: " + str(i +1) +"/" + str(len(molecule_smiles)))
+            t.markdown("Calculating descriptors for molecule: " + str(pos +1) +"/" + str(len(data.iloc[:,0])))
     
     # Convert the list of dictionaries to a DataFrame
     descriptors_total = pd.DataFrame(descriptors_total_list)
