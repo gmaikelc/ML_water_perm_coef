@@ -332,7 +332,6 @@ def check_oo_distance(descriptors):
     return descriptors
 
 
-
 #%% Calculating molecular descriptors
 ### ----------------------- ###
 
@@ -356,7 +355,7 @@ def calc_descriptors(data, smiles_col_pos):
             smile_final = smile_checked.rstrip()
             smiles_list.append(smile_final)
                 
-            #calc = Calculator(descriptors, ignore_3D=True)
+            calc = Calculator(descriptors, ignore_3D=True)
             descriptor_values = calc(mol).asdict()
                 
             # Create a dictionary with molecule name as key and descriptor values as values
@@ -379,7 +378,6 @@ def calc_descriptors(data, smiles_col_pos):
     # Perform B07[O-O] descriptor calculation
     descriptors_total = check_oo_distance(descriptors_total)
 
-    return descriptors_total, smiles_list
 
 
 
