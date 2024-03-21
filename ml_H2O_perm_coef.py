@@ -760,9 +760,14 @@ else:
         data = pd.read_csv("example_file1.csv")
         train_data = data_train[loaded_desc]
         # Calculate descriptors and SMILES for the first column
-        descriptors_total_1, smiles_list_1 = calc_descriptors(data, 3)
+        #descriptors_total_1, smiles_list_1 = calc_descriptors(data, 3)
         # Calculate descriptors and SMILES for the second column
-        descriptors_total_2, smiles_list_2 = calc_descriptors(data, 4)
+        #descriptors_total_2, smiles_list_2 = calc_descriptors(data, 4)
+
+        # Calculate descriptors and SMILES for the first column with progress bar
+        descriptors_total_1, smiles_list_1 = calc_descriptors_with_progress(data, 3, "Component1")
+        # Calculate descriptors and SMILES for the second column with progress bar
+        descriptors_total_2, smiles_list_2 = calc_descriptors_with_progress(data, 4, "Component2")
 
         joint_dummy = descriptors_total_1[['Formal_charge']]
         # Left join
