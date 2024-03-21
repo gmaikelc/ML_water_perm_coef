@@ -350,7 +350,7 @@ def calc_descriptors(data, smiles_col_pos):
             continue  # Skip to the next row if SMILES is empty
             
         mol = Chem.MolFromSmiles(molecule_smiles)
-        #if mol is not None:
+        if mol is not None:
             smiles_ionized = charges_ph(molecule_smiles, 7.4)
             smile_checked = smile_obabel_corrector(smiles_ionized)
             smile_final = smile_checked.rstrip()
@@ -363,7 +363,7 @@ def calc_descriptors(data, smiles_col_pos):
             descriptors_dict = {'NAME': molecule_name}
             descriptors_dict.update(descriptor_values)
                 
-            #descriptors_total_list.append(descriptors_dict)
+            descriptors_total_list.append(descriptors_dict)
             t.markdown("Calculating descriptors for molecule: " + str(pos +1) +"/" + str(len(data.iloc[:,0])))
     
     # Convert the list of dictionaries to a DataFrame
