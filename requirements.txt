@@ -9,3 +9,4 @@ mordred
 plotly
 scikit-learn
 networkx
+tqdm
