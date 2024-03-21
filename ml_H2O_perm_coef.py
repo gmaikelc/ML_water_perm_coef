@@ -378,6 +378,8 @@ def calc_descriptors(data, smiles_col_pos):
     # Perform B07[O-O] descriptor calculation
     descriptors_total = check_oo_distance(descriptors_total)
 
+    return descriptors_total, smiles_list
+
 
 
 
