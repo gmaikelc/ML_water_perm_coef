@@ -334,7 +334,7 @@ def check_oo_distance(descriptors):
 
 #%% Calculating molecular descriptors
 ### ----------------------- ###
-
+'''
 def calc_descriptors(data, smiles_col_pos):
     descriptors_total_list = []
     smiles_list = []
@@ -379,7 +379,97 @@ def calc_descriptors(data, smiles_col_pos):
     descriptors_total = check_oo_distance(descriptors_total)
 
     return descriptors_total, smiles_list
+'''
 
+
+from tqdm import tqdm
+
+def calc_descriptors(data, smiles_col_pos):
+    descriptors_total_list = []
+    smiles_list = []
+    
+    # Get the total number of molecules
+    total_molecules = len(data)
+    
+    # Initialize tqdm with the total number of molecules
+    with tqdm(total=total_molecules, desc="Calculating descriptors") as pbar:
+        # Loop through each molecule in the dataset
+        for pos, row in data.iterrows():
+            molecule_name = row[0]  # Assuming the first column contains the molecule names
+            molecule_smiles = row[smiles_col_pos]  # Assuming the specified column contains the SMILES
+
+            if pd.isna(molecule_smiles) or molecule_smiles.strip() == '':
+                continue  # Skip to the next row if SMILES is empty
+                
+            mol = Chem.MolFromSmiles(molecule_smiles)
+            if mol is not None:
+                smiles_ionized = charges_ph(molecule_smiles, 7.4)
+                smile_checked = smile_obabel_corrector(smiles_ionized)
+                smile_final = smile_checked.rstrip()
+                smiles_list.append(smile_final)
+                    
+                calc = Calculator(descriptors, ignore_3D=True)
+                descriptor_values = calc(mol).asdict()
+                    
+                # Create a dictionary with molecule name as key and descriptor values as values
+                descriptors_dict = {'NAME': molecule_name}
+                descriptors_dict.update(descriptor_values)
+                    
+                descriptors_total_list.append(descriptors_dict)
+                
+            # Update the progress bar
+            pbar.update(1)
+            pbar.set_postfix({"Percentage": f"{(pos+1)/total_molecules*100:.2f}%"})
+    
+    # Convert the list of dictionaries to a DataFrame
+    descriptors_total = pd.DataFrame(descriptors_total_list)
+    descriptors_total = descriptors_total.set_index('NAME', inplace=False).copy()
+    descriptors_total = descriptors_total.reindex(sorted(descriptors_total.columns), axis=1)   
+    descriptors_total.replace([np.inf, -np.inf], np.nan, inplace=True)
+    descriptors_total["Smiles_OK"] = smiles_list
+    
+    # Perform formal charge calculation
+    descriptors_total = formal_charge_calculation(descriptors_total)
+
+    # Perform B07[O-O] descriptor calculation
+    descriptors_total = check_oo_distance(descriptors_total)
+
+    return descriptors_total, smiles_list
+
+
+
+def reading_reorder(data):
+    # Select the specified columns from the DataFrame
+    df_selected = data[loaded_desc]
+    df_id = data.reset_index()
+    df_id.rename(columns={'index': 'NAME'}, inplace=True)
+    id = df_id['NAME'] 
+
+    # Order the DataFrame by the specified list of columns
+    test_data = df_selected.reindex(columns=loaded_desc)
+
+    # Cleaning from invalid string values
+    # Converting the columns to strings
+    test_data['GATS7se'] = test_data['GATS7se'].astype(str)
+    test_data['GATS4i'] = test_data['GATS4i'].astype(str)
+
+    # Replacing the invalid string with 0
+    mapping = {'invalid value encountered in double_scalars (GATS7se)': '0.0',
+               'invalid value encountered in double_scalars (GATS4i)': '0.0'}
+    test_data = test_data.replace({'GATS7se': mapping, 'GATS4i': mapping})
+
+    # Converting back to numbers
+    test_data['GATS7se'] = pd.to_numeric(test_data['GATS7se'], errors='coerce')
+    test_data['GATS4i'] = pd.to_numeric(test_data['GATS4i'], errors='coerce')
+
+    return test_data, id
+
+# Assuming `loaded_desc` is defined elsewhere
+# Calculate descriptors and SMILES for the first column with progress bar
+descriptors_total_1, smiles_list_1 = calc_descriptors(data, 3)
+
+# Calculate descriptors and SMILES for the second column with progress bar
+descriptors_total_2, smiles_list_2 = calc_descriptors(data, 4)
 
 
 
