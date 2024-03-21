@@ -437,43 +437,6 @@ def calc_descriptors(data, smiles_col_pos):
     return descriptors_total, smiles_list
 
 
-
-def reading_reorder(data):
-    # Select the specified columns from the DataFrame
-    df_selected = data[loaded_desc]
-    df_id = data.reset_index()
-    df_id.rename(columns={'index': 'NAME'}, inplace=True)
-    id = df_id['NAME'] 
-
-    # Order the DataFrame by the specified list of columns
-    test_data = df_selected.reindex(columns=loaded_desc)
-
-    # Cleaning from invalid string values
-    # Converting the columns to strings
-    test_data['GATS7se'] = test_data['GATS7se'].astype(str)
-    test_data['GATS4i'] = test_data['GATS4i'].astype(str)
-
-    # Replacing the invalid string with 0
-    mapping = {'invalid value encountered in double_scalars (GATS7se)': '0.0',
-               'invalid value encountered in double_scalars (GATS4i)': '0.0'}
-    test_data = test_data.replace({'GATS7se': mapping, 'GATS4i': mapping})
-
-    # Converting back to numbers
-    test_data['GATS7se'] = pd.to_numeric(test_data['GATS7se'], errors='coerce')
-    test_data['GATS4i'] = pd.to_numeric(test_data['GATS4i'], errors='coerce')
-
-    return test_data, id
-
-# Assuming `loaded_desc` is defined elsewhere
-# Calculate descriptors and SMILES for the first column with progress bar
-descriptors_total_1, smiles_list_1 = calc_descriptors(data, 3)
-
-# Calculate descriptors and SMILES for the second column with progress bar
-descriptors_total_2, smiles_list_2 = calc_descriptors(data, 4)
-
-
-
-
 def reading_reorder(data):
         
     #Select the specified columns from the DataFrame
