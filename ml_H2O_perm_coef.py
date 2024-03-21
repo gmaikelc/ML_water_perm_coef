@@ -335,35 +335,90 @@ def check_oo_distance(descriptors):
 #%% Calculating molecular descriptors
 ### ----------------------- ###
 
-def calc_descriptors(data, smiles_col_pos):
-    descriptors_total_list = []
-    smiles_list = []
-    t = st.empty()
+#def calc_descriptors(data, smiles_col_pos):
+    #descriptors_total_list = []
+    #smiles_list = []
+    #t = st.empty()
     
     # Loop through each molecule in the dataset
-    for pos, row in data.iterrows():
-        molecule_name = row[0]  # Assuming the first column contains the molecule names
-        molecule_smiles = row[smiles_col_pos]  # Assuming the specified column contains the SMILES
+    #for pos, row in data.iterrows():
+        #molecule_name = row[0]  # Assuming the first column contains the molecule names
+        #molecule_smiles = row[smiles_col_pos]  # Assuming the specified column contains the SMILES
 
-        if pd.isna(molecule_smiles) or molecule_smiles.strip() == '':
-            continue  # Skip to the next row if SMILES is empty
+        #if pd.isna(molecule_smiles) or molecule_smiles.strip() == '':
+         #   continue  # Skip to the next row if SMILES is empty
             
-        mol = Chem.MolFromSmiles(molecule_smiles)
-        if mol is not None:
-            smiles_ionized = charges_ph(molecule_smiles, 7.4)
-            smile_checked = smile_obabel_corrector(smiles_ionized)
-            smile_final = smile_checked.rstrip()
-            smiles_list.append(smile_final)
+        #mol = Chem.MolFromSmiles(molecule_smiles)
+        #if mol is not None:
+            #smiles_ionized = charges_ph(molecule_smiles, 7.4)
+            #smile_checked = smile_obabel_corrector(smiles_ionized)
+            #smile_final = smile_checked.rstrip()
+            #smiles_list.append(smile_final)
                 
-            calc = Calculator(descriptors, ignore_3D=True)
-            descriptor_values = calc(mol).asdict()
+            #calc = Calculator(descriptors, ignore_3D=True)
+            #descriptor_values = calc(mol).asdict()
                 
             # Create a dictionary with molecule name as key and descriptor values as values
-            descriptors_dict = {'NAME': molecule_name}
-            descriptors_dict.update(descriptor_values)
+            #descriptors_dict = {'NAME': molecule_name}
+            #descriptors_dict.update(descriptor_values)
                 
-            descriptors_total_list.append(descriptors_dict)
-            t.markdown("Calculating descriptors for molecule: " + str(pos +1) +"/" + str(len(data.iloc[:,0])))
+            #descriptors_total_list.append(descriptors_dict)
+            #t.markdown("Calculating descriptors for molecule: " + str(pos +1) +"/" + str(len(data.iloc[:,0])))
+    
+    # Convert the list of dictionaries to a DataFrame
+    #descriptors_total = pd.DataFrame(descriptors_total_list)
+    #descriptors_total = descriptors_total.set_index('NAME', inplace=False).copy()
+    #descriptors_total = descriptors_total.reindex(sorted(descriptors_total.columns), axis=1)   
+    #descriptors_total.replace([np.inf, -np.inf], np.nan, inplace=True)
+    #descriptors_total["Smiles_OK"] = smiles_list
+    
+    # Perform formal charge calculation
+   # descriptors_total = formal_charge_calculation(descriptors_total)
+
+    # Perform B07[O-O] descriptor calculation
+  #  descriptors_total = check_oo_distance(descriptors_total)
+
+ #   return descriptors_total, smiles_list
+
+from tqdm import tqdm
+
+def calc_descriptors_with_progress(data, smiles_col_pos, component_col):
+    descriptors_total_list = []
+    smiles_list = []
+    
+    # Get the total number of molecules
+    total_molecules = len(data)
+    
+    # Initialize tqdm with the total number of molecules
+    with tqdm(total=total_molecules, desc="Calculating descriptors") as pbar:
+        # Loop through each molecule in the dataset
+        for pos, row in data.iterrows():
+            molecule_name = row[0]  # Assuming the first column contains the molecule names
+            molecule_smiles = row[smiles_col_pos]  # Assuming the specified column contains the SMILES
+            component_value = row[component_col]
+            
+            if pd.isna(molecule_smiles) or molecule_smiles.strip() == '':
+                continue  # Skip to the next row if SMILES is empty
+
+            mol = Chem.MolFromSmiles(molecule_smiles)
+            if mol is not None:
+                smiles_ionized = charges_ph(molecule_smiles, 7.4)
+                smile_checked = smile_obabel_corrector(smiles_ionized)
+                smile_final = smile_checked.rstrip()
+                smiles_list.append(smile_final)
+                    
+                calc = Calculator(descriptors, ignore_3D=True)
+                descriptor_values = calc(mol).asdict()
+                    
+                # Create a dictionary with molecule name as key and descriptor values as values
+                descriptors_dict = {'NAME': molecule_name}
+                descriptors_dict.update(descriptor_values)
+                    
+                descriptors_total_list.append(descriptors_dict)
+                
+            # Update the progress bar
+            pbar.update(1)
+            pbar.set_postfix({"Percentage": f"{(pos+1)/total_molecules*100:.2f}%"})
     
     # Convert the list of dictionaries to a DataFrame
     descriptors_total = pd.DataFrame(descriptors_total_list)
@@ -377,9 +432,8 @@ def calc_descriptors(data, smiles_col_pos):
 
     # Perform B07[O-O] descriptor calculation
     descriptors_total = check_oo_distance(descriptors_total)
-
+    
     return descriptors_total, smiles_list
-
 
 
 def reading_reorder(data):
@@ -650,10 +704,15 @@ if uploaded_file_1 is not None:
         data = pd.read_csv(uploaded_file_1,) 
         train_data = data_train[loaded_desc]
         # Calculate descriptors and SMILES for the first column
-        descriptors_total_1, smiles_list_1 = calc_descriptors(data, 3)
+        #descriptors_total_1, smiles_list_1 = calc_descriptors(data, 3)
         # Calculate descriptors and SMILES for the second column
-        descriptors_total_2, smiles_list_2 = calc_descriptors(data, 4)
+        #descriptors_total_2, smiles_list_2 = calc_descriptors(data, 4)
 
+        # Calculate descriptors and SMILES for the first column with progress bar
+        descriptors_total_1, smiles_list_1 = calc_descriptors_with_progress(data, 3, "Component1")
+        # Calculate descriptors and SMILES for the second column with progress bar
+        descriptors_total_2, smiles_list_2 = calc_descriptors_with_progress(data, 4, "Component2")
+        
         joint_dummy = descriptors_total_1[['Formal_charge']]
         # Left join
         descriptors_total_2n = joint_dummy.join(descriptors_total_2, how='left', lsuffix='_df1', rsuffix='_df2')
