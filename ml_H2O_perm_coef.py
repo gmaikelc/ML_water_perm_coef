@@ -607,7 +607,7 @@ def final_plot(final_file):
 def filedownload1(df):
     csv = df.to_csv(index=True,header=True)
     b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
-    href = f'<a href="data:file/csv;base64,{b64}" download="ml H2O results">Download CSV File with results</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="ml_H2O_permeability_coefficient_logP_results.csv">Download CSV File with results</a>'
     return href
 
 def filedownload2(df):
