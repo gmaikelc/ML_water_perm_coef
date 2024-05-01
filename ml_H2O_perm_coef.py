@@ -503,7 +503,7 @@ def get_color(confidence):
     """
     # Define your color logic here based on confidence
     if confidence == "HIGH" or confidence == "Inside AD":
-        return 'dodgerblue'
+        return 'cornflowerblue'
     elif confidence == "MEDIUM":
         return 'lightblue'
     else:
@@ -589,7 +589,7 @@ def final_plot(final_file):
     non_confident_tg = len(final_file[(final_file['Confidence'] == "LOW")])
     
     keys = ["High confidence", "Medium confidence", "Low confidence",]
-    colors = ['dodgerblue', 'lightblue', 'red']  # Define custom colors for each slice
+    colors = ['cornflowerblue', 'lightblue', 'red']  # Define custom colors for each slice
     fig = go.Figure(go.Pie(labels=keys, values=[confident_tg, medium_confident_tg, non_confident_tg], marker=dict(colors=colors)))
     
     fig.update_layout(plot_bgcolor = 'rgb(256,256,256)', title_text="Global Emissions 1990-2011",
