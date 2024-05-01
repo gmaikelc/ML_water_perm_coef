@@ -625,13 +625,13 @@ def filedownload3(df):
 def filedownload4(df):
     csv = df.to_csv(index=True,header=True)
     b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
-    href = f'<a href="data:file/csv;base64,{b64}" download="Mixture results">Download CSV File with results Mixture</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="Mixture results">Download CSV File with Mixture descriptors</a>'
     return href
 
 def filedownload5(df):
     csv = df.to_csv(index=True,header=True)
     b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
-    href = f'<a href="data:file/csv;base64,{b64}" download="Mixture normalized results">Download CSV File with results normalized Mixture</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="Mixture normalized results">Download CSV File with results Mixture descriptors</a>'
     return href
 
 #%% RUN
