@@ -689,8 +689,8 @@ if uploaded_file_1 is not None:
         col1, col2 = st.columns(2)
 
         with col1:
-            st.header("Predictions")
-            st.header(r'log (P ( $\mathregular{x 10^{13}}))$ [cm$^3$] [cm] / [cm$^2$] [s] [Pa]')
+            st.header("Predictions",divider='green')
+            st.subheader(r'log (P ( ${x 10^{13}}))$ [cm$^3$] [cm] / [cm$^2$] [s] [Pa]')
             st.write(styled_df)
         with col2:
             st.header("Pie Chart % Confidence")
@@ -751,7 +751,7 @@ else:
         with col2:
             st.header("Pie Chart % Confidence")
             st.plotly_chart(figure,use_container_width=True)
-        st.markdown(":point_down: **Here you can download the results**", unsafe_allow_html=True)
+        st.markdown(":point_down: **Here you can download the results**", unsafe_allow_html=True,color='green')
         st.markdown(filedownload1(final_file), unsafe_allow_html=True)
 
 #Footer edit
