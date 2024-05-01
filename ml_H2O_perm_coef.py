@@ -690,6 +690,7 @@ if uploaded_file_1 is not None:
 
         with col1:
             st.header("Predictions")
+            st.header(r'log (P ( $\mathregular{x 10^{13}}))$ [cm$^3$] [cm] / [cm$^2$] [s] [Pa]')
             st.write(styled_df)
         with col2:
             st.header("Pie Chart % Confidence")
