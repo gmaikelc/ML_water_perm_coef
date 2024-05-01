@@ -746,7 +746,7 @@ else:
 
         with col1:
             st.header("Predictions",divider='rainbow')
-            st.subheader(r'log (P ( ${x 10^{13}}))$ [cm$^3$] [cm] / [cm$^2$] [s] [Pa]'})
+            st.subheader(r'log (P ( ${x 10^{13}}))$ [cm$^3$] [cm] / [cm$^2$] [s] [Pa]')
             st.write(styled_df)
         with col2:
             st.header("Pie Chart % Confidence")
