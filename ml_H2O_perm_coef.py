@@ -751,7 +751,7 @@ else:
         with col2:
             st.header("Pie Chart % Confidence")
             st.plotly_chart(figure,use_container_width=True)
-        st.markdown(":point_down: **Here you can download the results**", unsafe_allow_html=True,color='green')
+        st.markdown(":point_down: **Here you can download the results**", unsafe_allow_html=True,)
         st.markdown(filedownload1(final_file), unsafe_allow_html=True)
 
 #Footer edit
