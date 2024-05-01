@@ -689,7 +689,7 @@ if uploaded_file_1 is not None:
         col1, col2 = st.columns(2)
 
         with col1:
-            st.header("Predictions",divider='steelblue')
+            st.header("Predictions",divider='blue')
             st.subheader(r'log (P ( ${x 10^{13}}))$ [cm$^3$] [cm] / [cm$^2$] [s] [Pa]')
             st.write(styled_df)
         with col2:
@@ -745,7 +745,7 @@ else:
         col1, col2 = st.columns(2)
 
         with col1:
-            st.header("Predictions",divider='steelblue')
+            st.header("Predictions",divider='blue')
             st.subheader(r'log (P ( ${x 10^{13}}))$ [cm$^3$] [cm] / [cm$^2$] [s] [Pa]')
             st.write(styled_df)
         with col2:
