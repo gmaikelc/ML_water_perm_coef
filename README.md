@@ -1,15 +1,5 @@
 # ml_water_perm_coef_predictor
 
-📌About Us
-
-The group of Prof. Rasulev is focused on development of artificial intelligence (AI)-based predictive models to design novel polymeric materials, nanomaterials and to predict their various properties, 
-including toxicity, solubility, fouling release properties, elasticity, degradation rate, biodegradation, etc. 
-The group applies computational chemistry, machine learning and cheminformatics methods for modeling, data analysis and development of predictive structure-property relationship models 
-to find structural factors responsible for activity of investigated materials.
-
-💻Web Site http://www.rasulev.org
-
-
 
 -------------------------------------------------------------------------------------------------
 
